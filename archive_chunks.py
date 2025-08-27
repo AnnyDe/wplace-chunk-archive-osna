@@ -63,7 +63,7 @@ def create_combined_image(timestamp):
         height = (max_y - min_y + 1) * chunk_size[1]
         
         # Erstelle kombiniertes Bild
-        combined = Image.new('RGB', (width, height))
+        combined = Image.new('RGBA', (width, height), (255, 255, 255, 0)))
         
         for (x, y), img in chunk_images.items():
             paste_x = (x - min_x) * chunk_size[0]
