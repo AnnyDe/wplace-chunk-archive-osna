@@ -1,0 +1,36 @@
+name: Wplace Chunk Archiver
+
+on:
+  schedule:
+    # Läuft täglich um 8:00 und 20:00 UTC
+    - cron: '0 8,20 * * *'
+  workflow_dispatch: # Ermöglicht manuellen Start
+
+jobs:
+  archive-chunks:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        pip install requests Pillow
+        
+    - name: Download and archive chunks
+      run: |
+        python archive_chunks.py
+        
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git diff --staged --quiet || git commit -m "Archive update $(date '+%Y-%m-%d %H:%M UTC')"
+        git push
