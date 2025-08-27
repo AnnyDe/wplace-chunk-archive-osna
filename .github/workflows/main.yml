@@ -27,15 +27,11 @@ jobs:
       run: |
         python archive_chunks.py
         
-    - name: Commit and push changes
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        if git diff --staged --quiet; then
-          echo "No changes to commit"
-        else
-          git commit -m "Archive update $(date '+%Y-%m-%d %H:%M UTC')"
-          # Try to push, if it fails, pull and retry
-          git push || (git pull --rebase && git push)
-        fi
+          - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git diff --staged --quiet || git commit -m "Archive update $(date '+%Y-%m-%d %H:%M UTC')"
+          git pull --rebase origin main
+          git push
