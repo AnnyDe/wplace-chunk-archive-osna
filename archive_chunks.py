@@ -1,6 +1,6 @@
 import os
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from PIL import Image
 import time
 
@@ -78,9 +78,36 @@ def create_combined_image(timestamp):
     except Exception as e:
         print(f"✗ Failed to create combined image: {e}")
 
+def cleanup_old_archives(keep_days=30):
+    """Löscht Archive älter als keep_days Tage"""
+    try:
+        cutoff_date = datetime.utcnow() - timedelta(days=keep_days)
+        cutoff_str = cutoff_date.strftime("%Y%m%d")
+        
+        # Lösche alte chunk Ordner
+        if os.path.exists("chunks"):
+            for folder in os.listdir("chunks"):
+                if folder < cutoff_str:
+                    import shutil
+                    shutil.rmtree(f"chunks/{folder}")
+                    print(f"Deleted old archive: {folder}")
+        
+        # Lösche alte kombinierte Bilder
+        if os.path.exists("combined"):
+            for file in os.listdir("combined"):
+                if file.endswith(".png") and file[:8] < cutoff_str:
+                    os.remove(f"combined/{file}")
+                    print(f"Deleted old combined: {file}")
+                    
+    except Exception as e:
+        print(f"Cleanup error: {e}")
+
 def main():
     timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M")
     print(f"Starting archive for timestamp: {timestamp}")
+    
+    # Cleanup alte Archive (behalte letzten 30 Tage)
+    cleanup_old_archives(30)
     
     success_count = 0
     
